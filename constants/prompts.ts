@@ -1,4 +1,5 @@
 
+
 export const DEFAULT_MEMORY_TEXT = `### **Prompt de Sistema: Assistente Virtual do Salão de Beleza**
 
 **1. Sua Persona e Missão Principal**
@@ -187,7 +188,12 @@ export const WELCOME_PHRASES = [
     "Oi! Estou aqui para ajudar. Clique no botão.",
     "Olá! Posso agendar para você? Clique aqui.",
     "Oi! Sou a IA do salão. Clique para começar.",
-    "Olá! Precisa de ajuda? O botão está aqui."
+    "Olá! Precisa de ajuda? O botão está aqui.",
+    "Oi! Sou a assistente virtual. Vamos agendar?",
+    "Olá! Estou online para agendar seu horário.",
+    "Tudo bem? Sou a IA e posso agendar pra você.",
+    "Oi! Sua assistente está pronta. Clique aqui.",
+    "Olá! Clique no botão para falar com a IA."
 ];
 
 export const IDLE_REMINDER_PHRASE = "Oi? Ainda está por aí? Não se preocupe, estou aqui aguardando. Quando quiser ficar ainda mais linda, é só clicar no botão que eu te ajudo a agendar seu horário rapidinho.";
