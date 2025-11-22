@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AnyHair</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+<style>
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+  .transition-enter-fade { animation: fadeIn forwards; }
+  .transition-leave-fade { animation: fadeOut forwards; }
+
+  @keyframes slideInUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @keyframes slideOutUp { from { transform: translateY(0); } to { transform: translateY(-100%); } }
+  .transition-enter-slide-up { animation: slideInUp forwards; }
+  .transition-leave-slide-up { animation: slideOutUp forwards; }
+  
+  @keyframes slideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  @keyframes slideOutRight { from { transform: translateX(0); } to { transform: translateX(100%); } }
+  .transition-enter-slide-right { animation: slideInRight forwards; }
+  .transition-leave-slide-right { animation: slideOutRight forwards; }
+
+  @keyframes zoomIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes zoomOut { from { transform: scale(1); opacity: 1; } to { transform: scale(1.2); opacity: 0; } }
+  .transition-enter-zoom-in { animation: zoomIn forwards; }
+  .transition-leave-zoom-in { animation: zoomOut forwards; }
+
+  @keyframes zoomInSlight { from { transform: scale(1.2); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes zoomOutSlight { from { transform: scale(1); opacity: 1; } to { transform: scale(0.8); opacity: 0; } }
+  .transition-enter-zoom-out { animation: zoomInSlight forwards; }
+  .transition-leave-zoom-out { animation: zoomOutSlight forwards; }
+  
+  @keyframes blurIn { from { filter: blur(20px); opacity: 0; } to { filter: blur(0); opacity: 1; } }
+  @keyframes blurOut { from { filter: blur(0); opacity: 1; } to { filter: blur(20px); opacity: 0; } }
+  .transition-enter-blur { animation: blurIn forwards; }
+  .transition-leave-blur { animation: blurOut forwards; }
+  
+  @keyframes wipeInRight { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes wipeOutLeft { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 0 0 100%); } }
+  .transition-enter-wipe-right { animation: wipeInRight forwards; }
+  .transition-leave-wipe-right { animation: wipeOutLeft forwards; z-index: 3 !important; }
+
+  @keyframes circleIn { from { clip-path: circle(0%); } to { clip-path: circle(150%); } }
+  @keyframes circleOut { from { opacity: 1; } to { opacity: 1; } }
+  .transition-enter-circle-wipe { animation: circleIn forwards; z-index: 3 !important; }
+  .transition-leave-circle-wipe { animation: circleOut forwards; }
+
+  @keyframes revealInY { from { clip-path: inset(50% 0 50% 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes revealOutY { from { opacity: 1; } to { opacity: 1; } }
+  .transition-enter-reveal-y { animation: revealInY forwards; z-index: 3 !important; }
+  .transition-leave-reveal-y { animation: revealOutY forwards; }
+  
+  @keyframes rotateIn { from { transform: scale(0.5) rotate(-180deg); opacity: 0; } to { transform: scale(1) rotate(0deg); opacity: 1; } }
+  @keyframes rotateOut { from { transform: scale(1); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
+  .transition-enter-rotate-in { animation: rotateIn forwards; }
+  .transition-leave-rotate-in { animation: rotateOut forwards; }
+
+  @keyframes fadeInSlight { from { opacity: 0; } to { opacity: 1; } }
+  .animate-fade-in { animation: fadeInSlight 0.5s ease-out forwards; }
+
+  @keyframes pulse-red {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+    70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+  }
+  .animate-pulse-red { animation: pulse-red 2s infinite; }
+
+  @keyframes pulse-blue {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+    70% { box-shadow: 0 0 0 12px rgba(59, 130, 246, 0); }
+  }
+  .animate-pulse-blue { animation: pulse-blue 2s infinite; }
+
+  @keyframes button-glow {
+    0%, 100% {
+      filter: brightness(1) drop-shadow(0px 0px 0px transparent);
+      transform: scale(1);
+    }
+    50% {
+      filter: brightness(1.3) drop-shadow(0px 0px 15px #EC4899);
+      transform: scale(1.05);
+    }
+  }
+  .animate-glow-once {
+    animation: button-glow 2s ease-in-out;
+  }
+  .animate-glow-perpetual {
+    animation: button-glow 2.5s ease-in-out infinite;
+  }
+  
+  @keyframes confetti-fall {
+    0% { transform: translateY(-100vh) rotateZ(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotateZ(720deg); opacity: 0; }
+  }
+  .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      animation: confetti-fall 4s linear forwards;
+  }
+
+  /* Light Ray (Sheen) Effect - Improved visibility */
+  @keyframes sheen {
+    0% { transform: translateX(-150%) skewX(-25deg); }
+    100% { transform: translateX(250%) skewX(-25deg); }
+  }
+  .animate-sheen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg, 
+      transparent 0%, 
+      rgba(255, 255, 255, 0.1) 25%, 
+      rgba(255, 255, 255, 0.6) 50%, 
+      rgba(255, 255, 255, 0.1) 75%, 
+      transparent 100%
+    );
+    transform: skewX(-25deg);
+    animation: sheen 3s infinite cubic-bezier(0.2, 0.8, 0.2, 1);
+    pointer-events: none;
+  }
+
+  /* --- Organic Blob & Speaker Diaphragm Effects --- */
+
+  /* Listening: Slow organic morph with gentle echo ripples (BLUE) */
+  @keyframes blob-listen {
+    0% { 
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+      box-shadow: 
+        0 0 0 0 rgba(37, 99, 235, 0.5),
+        0 0 0 0 rgba(37, 99, 235, 0.3);
+    }
+    50% { 
+      border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+      box-shadow: 
+        0 0 0 8px rgba(37, 99, 235, 0.2), 
+        0 0 0 16px rgba(37, 99, 235, 0.05);
+    }
+    100% { 
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+      box-shadow: 
+        0 0 0 0 rgba(37, 99, 235, 0.5),
+        0 0 0 0 rgba(37, 99, 235, 0.3);
+    }
+  }
+
+  /* Speaking: Rapid liquid vibration with sharp speaker echo (RED) */
+  @keyframes blob-speak {
+    0% { 
+      border-radius: 45% 55% 40% 60% / 55% 45% 60% 40%;
+      transform: scale(1);
+      box-shadow: 
+        0 0 0 3px rgba(220, 38, 38, 0.6), 
+        0 0 0 6px rgba(220, 38, 38, 0.3);
+    }
+    25% { 
+      border-radius: 55% 45% 60% 40% / 45% 55% 40% 60%;
+      transform: scale(1.1);
+      box-shadow: 
+        0 0 0 5px rgba(220, 38, 38, 0.7), 
+        0 0 0 10px rgba(220, 38, 38, 0.4);
+    }
+    50% { 
+      border-radius: 40% 60% 55% 45% / 60% 40% 45% 55%;
+      transform: scale(0.95);
+      box-shadow: 
+        0 0 0 3px rgba(220, 38, 38, 0.6), 
+        0 0 0 6px rgba(220, 38, 38, 0.3);
+    }
+    75% {
+      border-radius: 60% 40% 45% 55% / 40% 60% 55% 45%;
+      transform: scale(1.05);
+      box-shadow: 
+        0 0 0 6px rgba(220, 38, 38, 0.7), 
+        0 0 0 12px rgba(220, 38, 38, 0.4);
+    }
+    100% { 
+      border-radius: 45% 55% 40% 60% / 55% 45% 60% 40%;
+      transform: scale(1);
+      box-shadow: 
+        0 0 0 3px rgba(220, 38, 38, 0.6), 
+        0 0 0 6px rgba(220, 38, 38, 0.3);
+    }
+  }
+
+  .animate-blob-listen {
+    animation: blob-listen 3s ease-in-out infinite;
+    background: rgba(37, 99, 235, 0.7); /* Translucent Blue */
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(4px);
+  }
+
+  .animate-blob-speak {
+    animation: blob-speak 0.4s linear infinite; /* Fast vibration */
+    background: rgba(220, 38, 38, 0.7); /* Translucent Red */
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(4px);
+  }
+
+  /* --- Text Pulse Color Animations --- */
+  @keyframes text-pulse-teal {
+    0%, 100% {
+      color: #ccfbf1; /* Teal-100 */
+      text-shadow: 0 0 4px rgba(45, 212, 191, 0.5);
+      transform: scale(1);
+    }
+    50% {
+      color: #ffffff;
+      text-shadow: 0 0 15px rgba(45, 212, 191, 0.8), 0 0 5px rgba(45, 212, 191, 0.8);
+      transform: scale(1.05);
+    }
+  }
+  .animate-text-pulse-teal {
+    animation: text-pulse-teal 2.5s ease-in-out infinite;
+  }
+
+  @keyframes text-pulse-orange {
+    0%, 100% {
+      color: #ffedd5; /* Orange-100 */
+      text-shadow: 0 0 4px rgba(251, 146, 60, 0.5);
+      transform: scale(1);
+    }
+    50% {
+      color: #ffffff;
+      text-shadow: 0 0 15px rgba(251, 146, 60, 0.8), 0 0 5px rgba(251, 146, 60, 0.8);
+      transform: scale(1.05);
+    }
+  }
+  .animate-text-pulse-orange {
+    animation: text-pulse-orange 2s ease-in-out infinite;
+  }
+
+  @media print {
+    body, #root {
+      background-color: white !important;
+      color: black !important;
+    }
+    .print-hidden {
+      display: none !important;
+    }
+    .print-container {
+      position: static;
+      height: auto;
+      overflow: visible;
+    }
+    .calendar-grid-container {
+      overflow: visible !important;
+    }
+  }
+
+  /* Custom Scrollbar Styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(230, 230, 230, 0.2);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(236, 72, 153, 0.5);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(236, 72, 153, 0.8);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(236, 72, 153, 0.5) rgba(230, 230, 230, 0.2);
+  }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+    "vite": "https://aistudiocdn.com/vite@^7.2.4",
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.1"
+  }
+}
+</script>
+</head>
+<body class="bg-[#0D1117] text-[#E2E8F0]">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

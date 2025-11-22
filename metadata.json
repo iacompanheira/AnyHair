@@ -1,0 +1,8 @@
+{
+  "name": "Novo #8 - ✴️ 21/11/25 ✴️ 20:26 horas",
+  "description": "",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ]
+}
