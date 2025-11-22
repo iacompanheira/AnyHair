@@ -112,7 +112,15 @@ const App: React.FC = () => {
     const [auditLogs, setAuditLogs] = useState<AuditLog[]>(initialAuditLogs);
     const [cardOrder, setCardOrder] = useState<string[]>(initialCardOrder);
 
-    const ai = useMemo(() => new GoogleGenAI({ apiKey: process.env.API_KEY }), []);
+    // FIX: Safeguard GoogleGenAI initialization to prevent White/Black Screen on Vercel if API Key is missing
+    const ai = useMemo(() => {
+        try {
+            return new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+        } catch (e) {
+            console.error("Falha ao inicializar GoogleGenAI. Verifique sua API_KEY.", e);
+            return null;
+        }
+    }, []);
 
     // Background transition state
     const [currentBgIndex, setCurrentBgIndex] = useState(0);
@@ -374,7 +382,7 @@ const App: React.FC = () => {
     // Play welcome message once on load with frequency limiting
     useEffect(() => {
         const playWelcomeMessage = async () => {
-            if (!navigator.onLine) return;
+            if (!navigator.onLine || !ai) return;
             
             // --- FREQUENCY LIMITING LOGIC START ---
             const STORAGE_KEY = 'anyhair_welcome_stats';
@@ -408,11 +416,6 @@ const App: React.FC = () => {
             // --- FREQUENCY LIMITING LOGIC END ---
 
             try {
-                if (!process.env.API_KEY) {
-                    console.warn("API_KEY not found: Skipping welcome message");
-                    return;
-                }
-
                 const randomPhrase = WELCOME_PHRASES[Math.floor(Math.random() * WELCOME_PHRASES.length)];
 
                 const response = await ai.models.generateContent({
@@ -446,7 +449,7 @@ const App: React.FC = () => {
                     // Start 2-minute idle timer only if welcome played
                     if (idleTimeoutRef.current) clearTimeout(idleTimeoutRef.current);
                     idleTimeoutRef.current = setTimeout(async () => {
-                        if (!conversationInitiatedRef.current && navigator.onLine) {
+                        if (!conversationInitiatedRef.current && navigator.onLine && ai) {
                             try {
                                 const idleResponse = await ai.models.generateContent({
                                     model: 'gemini-2.5-flash-preview-tts',
@@ -491,7 +494,7 @@ const App: React.FC = () => {
     
     // Play TTS message when a confirmation card is shown
     useEffect(() => {
-        if (confirmedAppointment) {
+        if (confirmedAppointment && ai) {
             const playConfirmationMessage = async () => {
                 try {
                     const response = await ai.models.generateContent({
@@ -703,6 +706,10 @@ const App: React.FC = () => {
             alert("Você está offline. Verifique sua conexão com a internet.");
             return;
         }
+        if (!ai) {
+            alert("Erro de configuração: API Key não encontrada. O assistente não pode iniciar.");
+            return;
+        }
 
         setStatus('connecting');
         try {
@@ -841,7 +848,7 @@ const App: React.FC = () => {
     }, [handleStopListening, micGain, isNoiseReductionEnabled, isMemoryEnabled, memoryText, services, employees, getOutputAudioContext, functionDeclarations, executeFunctionCall, ai]);
     
      const initializeChatSession = useCallback(async () => {
-        if (chatSessionRef.current) return;
+        if (chatSessionRef.current || !ai) return;
         
         let dynamicSystemInstruction = isMemoryEnabled ? memoryText : '';
         if (isMemoryEnabled) {
@@ -870,25 +877,28 @@ const App: React.FC = () => {
                 await initializeChatSession();
             }
             
-            const chat = chatSessionRef.current!;
-            let response = await chat.sendMessage({ message: text });
+            if (chatSessionRef.current) {
+                const chat = chatSessionRef.current;
+                let response = await chat.sendMessage({ message: text });
 
-            if (response.functionCalls && response.functionCalls.length > 0) {
-                const functionResponses = [];
-                for (const fc of response.functionCalls) {
-                    const result = await executeFunctionCall(fc);
-                    functionResponses.push({
-                        functionResponse: {
-                            name: fc.name,
-                            id: fc.id,
-                            response: { result },
-                        },
-                    });
+                if (response.functionCalls && response.functionCalls.length > 0) {
+                    const functionResponses = [];
+                    for (const fc of response.functionCalls) {
+                        const result = await executeFunctionCall(fc);
+                        functionResponses.push({
+                            functionResponse: {
+                                name: fc.name,
+                                id: fc.id,
+                                response: { result },
+                            },
+                        });
+                    }
+                    response = await chat.sendMessage({ parts: functionResponses });
                 }
-                response = await chat.sendMessage({ parts: functionResponses });
+                setGeminiResponse(response.text);
+            } else {
+                setGeminiResponse("Assistente não disponível (Erro de API Key).");
             }
-
-            setGeminiResponse(response.text);
 
         } catch (error) {
             console.error("Error sending text to Gemini:", error);
@@ -1013,7 +1023,8 @@ const App: React.FC = () => {
                 )}
 
                 <Header onMenuClick={handleOpenDashboard} onStaffAccessClick={handleOpenStaffAccess} titleSettings={titleSettings} headerSettings={headerSettings}/>
-                <WaveformVisualizer status={status} isAiSpeaking={isAiSpeaking} styleId={visualizerStyle} />
+                {/* Stealth Mode: Hide WaveformVisualizer on welcome screen */}
+                {appState === 'chat' && <WaveformVisualizer status={status} isAiSpeaking={isAiSpeaking} styleId={visualizerStyle} />}
                 
                  {appState === 'welcome' && !clientView && (
                     <>
@@ -1024,7 +1035,7 @@ const App: React.FC = () => {
                                 disabled={!isCtaButtonEnabled}
                             />
                         )}
-                        {/* Removed FloatingActionButtons here to fix ReferenceError and comply with design */}
+                        <FloatingActionButtons onButtonClick={handleClientViewButtonClick} />
                     </>
                 )}
 
