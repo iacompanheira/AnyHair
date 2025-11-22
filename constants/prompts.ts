@@ -182,7 +182,12 @@ export const WELCOME_PHRASES = [
     "Oi! Vamos realçar sua beleza? Clique no botão.",
     "Tudo bem? O botão de agendamento é o caminho.",
     "Olá! Clique para reservar seu momento especial.",
-    "Oi! Agende com facilidade clicando abaixo."
+    "Oi! Agende com facilidade clicando abaixo.",
+    "Olá! Sou sua assistente. Clique para agendar.",
+    "Oi! Estou aqui para ajudar. Clique no botão.",
+    "Olá! Posso agendar para você? Clique aqui.",
+    "Oi! Sou a IA do salão. Clique para começar.",
+    "Olá! Precisa de ajuda? O botão está aqui."
 ];
 
 export const IDLE_REMINDER_PHRASE = "Oi? Ainda está por aí? Não se preocupe, estou aqui aguardando. Quando quiser ficar ainda mais linda, é só clicar no botão que eu te ajudo a agendar seu horário rapidinho.";
